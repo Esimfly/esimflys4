@@ -274,4 +274,10 @@ export default function Home() {
 
     <p className="countdown">{countdown}</p>
   </div>
-)}
+           </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
