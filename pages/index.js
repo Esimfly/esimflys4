@@ -274,7 +274,8 @@ export default function Home() {
 
     <p className="countdown">{countdown}</p>
   </div>
-           </>
+)} {/* هذا إغلاق عرض lastPackage */}
+            </>
           )}
         </div>
       </div>
