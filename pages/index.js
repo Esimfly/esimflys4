@@ -234,10 +234,7 @@ export default function Home() {
                 <p>
                   Total Available Balance: {data.summary?.totalAvailableBalance}
                 </p>
-                <p>
-                  Total Activated Balance: {data.summary?.totalActivatedBalance}
-                </p>
-              </div>
+                              </div>
 
               {data.customer?.lastPackage && (
                 <div className="card">
