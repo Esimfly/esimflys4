@@ -87,7 +87,6 @@ export default async function handler(req, res) {
     res.status(200).json({
       summary: {
         totalAvailableBalance: `${totalAvailableBalanceSum.toFixed(2)} GB`,
-        totalActivatedBalance: `${totalActivatedBalanceSum.toFixed(2)} GB`,
       },
       customer: customers[0],
     });
