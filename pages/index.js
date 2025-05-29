@@ -239,42 +239,40 @@ export default function Home() {
                 </p>
               </div>
 
-              {data?.customer?.lastPackage && (
-  <div className="card">
-    <p>
-      <strong>Package:</strong> {data.customer.lastPackage?.name || 'N/A'}
-    </p>
-    <p>
-      <strong>Available Balance:</strong>{' '}
-      {data.customer.lastPackage?.remaining || 'N/A'}
-    </p>
-    <p>
-      <strong>Expires At:</strong>{' '}
-      {data.customer.lastPackage?.expiresAt
-        ? new Date(data.customer.lastPackage.expiresAt).toLocaleString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-          })
-        : 'N/A'}
-    </p>
+              {data.customer?.lastPackage && (
+                <div className="card">
+                  <p>
+                    <strong>Package:</strong> {data.customer.lastPackage.name}
+                  </p>
+                  <p>
+                    <strong>Available Balance:</strong>{' '}
+                    {data.customer.lastPackage.remaining}
+                  </p>
+                  <p>
+                    <strong>Expires At:</strong>{' '}
+                    {new Date(data.customer.lastPackage.expiresAt).toLocaleString('en-GB', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false,
+})}
+                  </p>
 
-    <div className="progress-bar">
-      <div
-        className="progress-bar-fill"
-        style={{
-          width: `${data.customer.lastPackage?.percentageUsed || 0}%`,
-        }}
-      />
-    </div>
+                  <div className="progress-bar">
+                    <div
+                      className="progress-bar-fill"
+                      style={{
+                        width: `${data.customer.lastPackage.percentageUsed || 0}%`,
+                      }}
+                    />
+                  </div>
 
-    <p className="countdown">{countdown}</p>
-  </div>
-)} {/* هذا إغلاق عرض lastPackage */}
+                  <p className="countdown">{countdown}</p>
+                </div>
+              )}
             </>
           )}
         </div>
