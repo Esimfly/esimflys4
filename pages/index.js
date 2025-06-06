@@ -184,7 +184,7 @@ export default function Home() {
             font-size: 15px;
           }
           .logo-container img {
-            width: 300px;
+            width: 120px;
           }
         }
       `}</style>
