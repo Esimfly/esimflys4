@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const accessToken = process.env.GIGA_STORE_ACCESS_TOKEN;
+import { getGigaAccessToken } from '../../lib/gigaToken';
 
 export default async function handler(req, res) {
   const iccid = req.query.iccid;
@@ -10,21 +9,23 @@ export default async function handler(req, res) {
   }
 
   try {
+    const accessToken = await getGigaAccessToken();
+
     const response = await axios.post(
       'https://api.giga.store/gigastore/activations/search-customers',
       {
         pageSize: 50,
         pageIndex: 0,
-        searchKey: "ICCID",
+        searchKey: 'ICCID',
         searchQuery: iccid,
-        searchMode: "contains",
-        onlyActiveProfiles: true,
+        searchMode: 'contains',
+        onlyActiveProfiles: false,
       },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-          accept: 'application/json',
+          Accept: 'application/json',
         },
       }
     );
@@ -56,7 +57,6 @@ export default async function handler(req, res) {
           name: b.name,
           activatedAt: b.activatedAt,
           expiresAt: expiresAt.toISOString(),
-
           remaining: `${available} ${b.availableBalance?.sizeUnit || 'GB'}`,
           percentageUsed,
           countdown: getCountdownString(expiresAt),
@@ -90,14 +90,16 @@ export default async function handler(req, res) {
       },
       customer: customers[0],
     });
+
   } catch (error) {
-    res.status(500).json({
-      error: error.response?.data || error.message,
+    console.error('❌ API Error:', error.message);
+    res.status(error.response?.status || 500).json({
+      error: error.response?.data || error.message || 'Internal Server Error',
     });
   }
 }
 
-// ✅ Countdown formatter with seconds
+// ✅ Countdown formatter
 function getCountdownString(expiryDate) {
   const now = Date.now();
   const end = expiryDate.getTime();
