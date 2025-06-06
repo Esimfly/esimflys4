@@ -12,15 +12,17 @@ export default function Home() {
     setError('');
     setData(null);
     setCountdown('');
-    clearInterval(countdownInterval.current);
+    if (countdownInterval.current) {
+      clearInterval(countdownInterval.current);
+    }
 
-    if (!iccid) {
+    if (!iccid.trim()) {
       setError('Please enter ICCID');
       return;
     }
 
     try {
-      const res = await fetch(`/api/check?iccid=${encodeURIComponent(iccid)}`);
+      const res = await fetch(`/api/check?iccid=${encodeURIComponent(iccid.trim())}`);
       const json = await res.json();
       if (!res.ok) {
         setError(json.error || 'Error fetching data');
@@ -30,8 +32,7 @@ export default function Home() {
       const lastPackage = json.customer?.lastPackage;
 
       if (lastPackage?.expiresAt) {
-        const expiryDate = new Date(lastPackage.expiresAt);
-        expiryRef.current = expiryDate;
+        expiryRef.current = new Date(lastPackage.expiresAt);
         startCountdown();
       } else {
         setCountdown('');
@@ -47,25 +48,33 @@ export default function Home() {
     const update = () => {
       const now = new Date();
       const expiryDate = expiryRef.current;
+      if (!expiryDate) return;
+
       const diff = expiryDate - now;
+
       if (diff <= 0) {
         setCountdown('Expired');
-        clearInterval(countdownInterval.current);
+        if (countdownInterval.current) clearInterval(countdownInterval.current);
         return;
       }
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / (1000 * 60)) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
-      setCountdown (`${days}d ${hours}h ${minutes}m ${seconds}s`);
+
+      setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
     };
 
-    update(); // initial call
+    update();
+    if (countdownInterval.current) clearInterval(countdownInterval.current);
     countdownInterval.current = setInterval(update, 1000);
   };
 
   useEffect(() => {
-    return () => clearInterval(countdownInterval.current); // cleanup on unmount
+    return () => {
+      if (countdownInterval.current) clearInterval(countdownInterval.current);
+    };
   }, []);
 
   return (
@@ -232,37 +241,53 @@ export default function Home() {
             <>
               <div className="summary">
                 <p>
-                  Total Available Balance: {data.summary?.totalAvailableBalance}
+                  Total Available Balance:{' '}
+                  {typeof data.summary?.totalAvailableBalance === 'object' && data.summary?.totalAvailableBalance !== null
+                    ? JSON.stringify(data.summary.totalAvailableBalance)
+                    : data.summary?.totalAvailableBalance ?? 'N/A'}
                 </p>
-                              </div>
+                <p>
+                  Total Activated Balance:{' '}
+                  {typeof data.summary?.totalActivatedBalance === 'object' && data.summary?.totalActivatedBalance !== null
+                    ? JSON.stringify(data.summary.totalActivatedBalance)
+                    : data.summary?.totalActivatedBalance ?? 'N/A'}
+                </p>
+              </div>
 
               {data.customer?.lastPackage && (
                 <div className="card">
                   <p>
-                    <strong>Package:</strong> {data.customer.lastPackage.name}
+                    <strong>Package:</strong> {data.customer.lastPackage.name ?? 'N/A'}
                   </p>
                   <p>
                     <strong>Available Balance:</strong>{' '}
-                    {data.customer.lastPackage.remaining}
+                    {typeof data.customer.lastPackage.remaining === 'object' && data.customer.lastPackage.remaining !== null
+                      ? JSON.stringify(data.customer.lastPackage.remaining)
+                      : data.customer.lastPackage.remaining ?? 'N/A'}
                   </p>
                   <p>
                     <strong>Expires At:</strong>{' '}
-                    {new Date(data.customer.lastPackage.expiresAt).toLocaleString('en-GB', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hour12: false,
-})}
+                    {data.customer.lastPackage.expiresAt
+                      ? new Date(data.customer.lastPackage.expiresAt).toLocaleString('en-GB', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                          hour12: false,
+                        })
+                      : 'N/A'}
                   </p>
 
                   <div className="progress-bar">
                     <div
                       className="progress-bar-fill"
                       style={{
-                        width: `${data.customer.lastPackage.percentageUsed || 0}%`,
+                        width:
+                          typeof data.customer.lastPackage.percentageUsed === 'number'
+                            ? `${data.customer.lastPackage.percentageUsed}%`
+                            : '0%',
                       }}
                     />
                   </div>
